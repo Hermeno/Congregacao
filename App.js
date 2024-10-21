@@ -15,8 +15,6 @@ import MapScreen from "./screens/MapScreen";
 import ViewScreen from "./screens/ViewScreen";
 import SingScreen from "./screens/SingScreen";
 import MapaScreen from "./screens/MapaScreen";
-// import CadastroScreen from './screens/CadastroScreen';
-
 //initialize the database
 const initializeDatabase = async(db) => {
     try {
