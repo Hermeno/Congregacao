@@ -5,16 +5,17 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Location from 'expo-location';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { FontAwesome  } from '@expo/vector-icons';
-// import Map from './src/Map';
+import { FontAwesome } from '@expo/vector-icons';
 import { useState } from 'react';
-import HomeScreen  from "./screens/HomeScreen";
+import HomeScreen from "./screens/HomeScreen";
 import FormScreen from "./screens/FormScreen";
 import CameraScreen from "./screens/CameraScreen";
 import MapScreen from "./screens/MapScreen";
 import ViewScreen from "./screens/ViewScreen";
 import SingScreen from "./screens/SingScreen";
 import MapaScreen from "./screens/MapaScreen";
+import LoginScreen from "./screens/LoginScreen";
+import RegisterScreen from "./screens/RegisterScreen";
 //initialize the database
 const initializeDatabase = async(db) => {
     try {
@@ -27,24 +28,19 @@ const initializeDatabase = async(db) => {
                 permission INTEGER NOT NULL
             );
         `);
-        console.log('Database initialized !');
+        console.log('Base de données initialisée !');
     } catch (error) {
-        console.log('Error while initializing the database : ', error);
+        console.log("Erreur lors de l'initialisation de la base de données:", error);
     }
 
     await db.execAsync(`       
         CREATE TABLE IF NOT EXISTS fotos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        idPost INTEGER,        -- Relaciona as fotos com o id da postagem
-        foto BLOB,             -- Armazena a foto como BLOB
+        idPost INTEGER,        -- Relaciona as fotos com o id da postagem foto BLOB,             -- Armazena a foto como BLOB
         FOREIGN KEY (idPost) REFERENCES posts(id) -- Relaciona com a tabela de posts
         ); `
     )
 
-
-    //     await db.execAsync(
-    //     `ALTER TABLE users ADD COLUMN permission TEXT`
-    //   );
     await db.execAsync(
         `CREATE TABLE IF NOT EXISTS congregation_data (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,216 +71,33 @@ const initializeDatabase = async(db) => {
           tem_reuniao_jovens BOOLEAN
         )`
     );
-
-    // await db.execAsync(
-    //     `ALTER TABLE congregation_data ADD COLUMN casadaoracao TEXT`
-    //   );
-
-    
-    // const resetDatabase = async (db) => {
-    //     try {
-    //         await db.execAsync(`
-    //             DROP TABLE IF EXISTS users;
-    //             DROP TABLE IF EXISTS fotos;
-    //             DROP TABLE IF EXISTS congregation_data;
-    //         `);
-    //         console.log('All tables dropped successfully!');
-            
-    //         // Recriar as tabelas após excluir
-    //         await initializeDatabase(db);
-    //     } catch (error) {
-    //         console.log('Error while resetting the database: ', error);
-    //     }
-    // };
-    
-    // // Exemplo de uso:
-    // resetDatabase(db);
     
 };
 
-//create a stack navigator that manages the navigation between 3 screens
+// Créer un navigateur de pile qui gère la navigation
 const Stack = createStackNavigator();
 
-//We'll have 3 screens : Login, Register and Home
+// Écrans : Connexion, Inscription et Accueil
 
 export default function App() {
   return (
     <SQLiteProvider databaseName='auth.db' onInit={initializeDatabase}>
         <NavigationContainer>
-            <Stack.Navigator initialRouteName='Login'>
-                <Stack.Screen name='Login' component={LoginScreen}/>
-                <Stack.Screen name='Register' component={RegisterScreen}/>
-                <Stack.Screen name='Home' component={HomeScreen}/>
-                <Stack.Screen name='Form' component={FormScreen}/>
-                <Stack.Screen name='Camera' component={CameraScreen}/>
-                <Stack.Screen name='Map' component={MapScreen}/>
-                <Stack.Screen name='Viw' component={ViewScreen}/>
-                <Stack.Screen name='Sing' component={SingScreen}/>
-                <Stack.Screen name='Mapa' component={MapaScreen}/>
+            <Stack.Navigator initialRouteName='Connexion'>
+                <Stack.Screen name='Connexion' component={LoginScreen}/>
+                <Stack.Screen name='Inscription' component={RegisterScreen}/>
+                <Stack.Screen name='Accueil' component={HomeScreen}/>
+                <Stack.Screen name='Formulaire' component={FormScreen}/>
+                <Stack.Screen name='Caméra' component={CameraScreen}/>
+                <Stack.Screen name='Carte' component={MapScreen}/>
+                <Stack.Screen name='Vue' component={ViewScreen}/>
+                <Stack.Screen name='Chanter' component={SingScreen}/>
+                <Stack.Screen name='CartePlan' component={MapaScreen}/>
             </Stack.Navigator>
         </NavigationContainer>
     </SQLiteProvider>
   );
 }
-
-//LoginScreen component
-const LoginScreen = ({navigation}) => {
-
-    const db = useSQLiteContext();
-    const [userName, setUserName] = useState('');
-    const [password, setPassword] = useState('');
-
-    //function to handle login logic
-    const handleLogin = async() => {
-        if(userName.length === 0 || password.length === 0) {
-            Alert.alert('Attention','Please enter both username and password');
-            return;
-        }
-        try {
-            const user = await db.getFirstAsync('SELECT * FROM users WHERE username = ?', [userName]);
-            if (!user) {
-                Alert.alert('Error', 'Nome do usuario nao existe !');
-                return;
-            }
-            const validUser = await db.getFirstAsync('SELECT id, username, permission FROM users WHERE username = ? AND password = ?', [userName, password]);
-            if(validUser) {
-                const userId = validUser.id;
-                const permiSsion = validUser.permission;
-                Alert.alert('Success', 'Logado com Sucesso');
-                // navigation.navigate('Login');
-                navigation.navigate('Home', {user:userName, userId: userId, permiSsion: permiSsion });
-                setUserName('');
-                setPassword('');
-            } else {
-                Alert.alert('Error', 'Senha incoreta');
-            }
-        } catch (error) {
-            console.log('Error during login : ', error);
-        }
-    }
-    return (
-
-
-  
-        <View style={styles.container}>
-    <View style={styles.navContainer}>
-      <Text style={styles.navItem}>CCM</Text>
-    </View>
-
-
-
-
-            <Text style={styles.title}>Entre na sua conta <FontAwesome name="lock" size={24} color="green" /></Text>
-            <TextInput 
-                style={styles.input}
-                placeholder='Nome do usuario'
-                value={userName}
-                onChangeText={setUserName}
-            />
-            <TextInput 
-                style={styles.input}
-                placeholder='Password'
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-            />
-            <Pressable style={styles.button} onPress={handleLogin}>
-                <Text style={styles.buttonText} >Login  <FontAwesome name="lock" size={24} color="white" /></Text>
-            </Pressable>
-            <Pressable style={styles.link} onPress={() => navigation.navigate('Register')}>
-                <Text style={styles.linkText}>Don't have an account? Register</Text>
-            </Pressable>
-        </View>
-    )
-}
-
-//RegisterScreenComponent
-const RegisterScreen = ({navigation}) => {
-
-    const db = useSQLiteContext();
-    const [userName, setUserName] = useState('');
-    const [password, setPassword] = useState('');
-    const [permissions, setPermissions] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-
-    //function to handle registration logic
-    const handleRegister = async() => {
-        if  (userName.length === 0 || password.length === 0 || confirmPassword.length === 0) {
-            Alert.alert('Attention!', 'Please enter all the fields.');
-            return;
-        }
-        if (password !== confirmPassword) {
-            Alert.alert('Error', 'Password do not match');
-            return;
-        }
-        try {
-            const existingUser = await db.getFirstAsync('SELECT * FROM users WHERE username = ?', [userName]);
-            if (existingUser) {
-                Alert.alert('Error', 'Username already exists.');
-                return;
-            }
-            const permissions = 1;
-
-            await db.runAsync('INSERT INTO users (username, password, permission) VALUES (?, ?, ?)', [userName, password, permissions]);
-            Alert.alert('Success', 'Registration successful!');
-            // navigation.navigate('Home', {user : userName});
-            navigation.navigate('Login');
-        } catch (error) {
-            console.log('Error during registration : ', error);
-        }
-    }
-
-    return (
-        <View style={styles.container}>
-                <View style={styles.navContainer}>
-                <Text style={styles.navItem}>CCM</Text>
-                </View>
-            <Text style={styles.title}>Registrar - se  <FontAwesome name="user" size={24} color="green" /></Text>
-            <TextInput 
-                style={styles.input}
-                placeholder='Nome do usuario'
-                value={userName}
-                onChangeText={setUserName}
-            />
-            <TextInput 
-                style={styles.input}
-                placeholder='Password'
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-            />
-            <TextInput 
-                style={styles.input}
-                placeholder='Confirmar password'
-                secureTextEntry
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-            />
-            <Pressable style={styles.button} onPress={handleRegister}>
-                <Text style={styles.buttonText} >Registrar  <FontAwesome name="person-add" size={24} color="white" /></Text>
-            </Pressable>
-            <Pressable style={styles.link} onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.linkText}>Already have an account? Login</Text>
-            </Pressable>
-        </View>
-    )
-}
-
-//HomeScreen component
-// const HomeScreen = ({navigation, route}) => {
-
-//     //we'll extract the user parameter from route.params
-//     const { user } = route.params;
-//     return (
-//         <View style={styles.container}>
-//             <Text style={styles.title}>Home</Text>
-//             <Text style={styles.userText}>Welcome {user} !</Text>
-//             <Pressable style={styles.button} onPress={() => navigation.navigate('Login')}>
-//                 <Text style={styles.buttonText} >Logout</Text>
-//             </Pressable>
-//         </View>
-//     )
-// }
 
 const styles = StyleSheet.create({
   container: {
