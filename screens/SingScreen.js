@@ -59,8 +59,8 @@ const handleDelete = async (id) => {
 return (
     <><View style={styles.navContainer}>
       <Text style={styles.navItem}>CCM</Text>
-      <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Viw', { userId: userId, user: user, permiSsion: permiSsion })}>
-        <Text style={styles.buttonText}>voltar</Text>
+      <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Vue', { userId: userId, user: user, permiSsion: permiSsion })}>
+        <Text style={styles.buttonText}>Retour</Text>
       </TouchableOpacity>
     </View>
     <ScrollView contentContainerStyle >
@@ -70,61 +70,49 @@ return (
           {casasOracao.length > 0 ? (
             casasOracao.map((item, index) => (
               <React.Fragment key={index}>
-                <Text style={styles.textHead}>DADOS DE CASA DA/E  {item.casadaoracao}</Text>
+                <Text style={styles.textHead}>DONNÉES DE LA MAISON {item.casadaoracao}</Text>
                 <View style={styles.row}>
-                    <Text > Casa da Oracao - <Text style={styles.textoRender}> {item.casadaoracao}</Text></Text>
-                    <Text> Nome do Cooperador - <Text style={styles.textoRender}>   {item.cooperador_nome} </Text></Text>
-                    <Text> Cooperador de jovens - <Text style={styles.textoRender}>   {item.cooperador_jovens_nome}</Text></Text>
-                    <Text> Nome dos Responsaveis - <Text style={styles.textoRender}>   {item.responsaveis_nomes}</Text></Text>
-                    <Text> Material  - <Text style={styles.textoRender}>   {item.material_tipo} </Text></Text>
-                    <Text> Quantidade dos Membros - <Text style={styles.textoRender}>   {item.qtde_membros}</Text></Text>
-                    <Text> Quantidade de Batizados - <Text style={styles.textoRender}>   {item.qtde_batizados}</Text></Text>
-                    <Text> Quantidade de Santa ceia 2024 - <Text style={styles.textoRender}>   {item.qtde_santa_ceia_2024}</Text></Text>
-                    <Text> Quantidade de santa ceia 2023 - <Text style={styles.textoRender}>   {item.qtde_santa_ceia_2023}</Text></Text>
-                    <Text> Quantidade de santa ceia 2022 - <Text style={styles.textoRender}>   {item.qtde_santa_ceia_2022}</Text></Text>
-                    <Text> Quantidade de Criancas - <Text style={styles.textoRender}>   {item.qtde_criancas} </Text></Text>
-                    <Text> Quantidade de Musicos - <Text style={styles.textoRender}>   {item.qtde_musicos}</Text></Text>
-                    <Text> Documentacao - <Text style={styles.textoRender}>   {item.documentacao}</Text></Text>
-                    {/* <Text> cooperador - <Text style={styles.textoRender}>   {item.latitude}</Text></Text>
-                    <Text> cooperador - <Text style={styles.textoRender}>   {item.longitude} </Text></Text> */}
-                    <Text> Tem agua e luz- 
+                    <Text > Maison de Prière - <Text style={styles.textoRender}> {item.casadaoracao}</Text></Text>
+                    <Text> Nom du Coopérateur - <Text style={styles.textoRender}>   {item.cooperador_nome} </Text></Text>
+                    <Text> Coopérateur des Jeunes - <Text style={styles.textoRender}>   {item.cooperador_jovens_nome}</Text></Text>
+                    <Text> Noms des Responsables - <Text style={styles.textoRender}>   {item.responsaveis_nomes}</Text></Text>
+                    <Text> Matériel - <Text style={styles.textoRender}>   {item.material_tipo} </Text></Text>
+                    <Text> Nombre de Membres - <Text style={styles.textoRender}>   {item.qtde_membros}</Text></Text>
+                    <Text> Nombre de Baptisés - <Text style={styles.textoRender}>   {item.qtde_batizados}</Text></Text>
+                    <Text> Nombre pour Sainte-Cène 2024 - <Text style={styles.textoRender}>   {item.qtde_santa_ceia_2024}</Text></Text>
+                    <Text> Nombre pour Sainte-Cène 2023 - <Text style={styles.textoRender}>   {item.qtde_santa_ceia_2023}</Text></Text>
+                    <Text> Nombre pour Sainte-Cène 2022 - <Text style={styles.textoRender}>   {item.qtde_santa_ceia_2022}</Text></Text>
+                    <Text> Nombre d'Enfants - <Text style={styles.textoRender}>   {item.qtde_criancas} </Text></Text>
+                    <Text> Nombre de Musiciens - <Text style={styles.textoRender}>   {item.qtde_musicos}</Text></Text>
+                    <Text> Documentation - <Text style={styles.textoRender}>   {item.documentacao}</Text></Text>
+                    <Text> A l'Électricité et l'Eau- 
                       
                       {item.tem_agua_luz == 1 ?(
-                          <Text style={styles.textoRender}>Sim</Text>
+                          <Text style={styles.textoRender}>Oui</Text>
                         ) : ( 
-                          <Text style={styles.textoRender}>Não</Text>
+                          <Text style={styles.textoRender}>Non</Text>
                         )                      
                       }
                       
                     </Text>
-                    <Text> Material de Fabrico - <Text style={styles.textoRender}>   {item.material_fabrica}</Text></Text>
-
-                    {/* <Text> foto - <Text style={styles.textoRender}>   {item.foto_co}</Text></Text> */}
-
-                                  {/* <Text>Foto:</Text>
-                    <Image
-                      source={{ uri: item.foto_co }}
-                      style={{ width: 200, height: 200 }} // Defina a largura e altura da imagem
-                    /> */}
-
-
-                    <Text> Posto Administrativo - <Text style={styles.textoRender}>   {item.posto_administrativo}</Text></Text>
-                    <Text> Endereco - <Text style={styles.textoRender}>   {item.endereco}</Text></Text>
-                    <Text> Dias de Cultos - <Text style={styles.textoRender}>   {item.dias_cultos} </Text></Text>
-                    <Text> horario dos Cultos - <Text style={styles.textoRender}>   {item.horario_cultos}</Text></Text>
-                    <Text> Tem reuniao de Jovens -                         
+                    <Text> Matériel d'Usine - <Text style={styles.textoRender}>   {item.material_fabrica}</Text></Text>
+                    <Text> Poste Administratif - <Text style={styles.textoRender}>   {item.posto_administrativo}</Text></Text>
+                    <Text> Adresse - <Text style={styles.textoRender}>   {item.endereco}</Text></Text>
+                    <Text> Jours de Culte - <Text style={styles.textoRender}>   {item.dias_cultos} </Text></Text>
+                    <Text> Heures des Cultes - <Text style={styles.textoRender}>   {item.horario_cultos}</Text></Text>
+                    <Text> Réunion des Jeunes -                         
                       {item.tem_reuniao_jovens == 1 ? (
-                          <Text style={styles.textoRender}>Sim</Text>
+                          <Text style={styles.textoRender}>Oui</Text>
                         ) : ( 
-                          <Text style={styles.textoRender}>Não</Text>
+                          <Text style={styles.textoRender}>Non</Text>
                         )                      
                       }
                     </Text>
                     {/* <Text> cooperador - <Text style={styles.textoRender}>   {item.userId}</Text></Text> */}
                       {/* {item.foto_co} */}
 
-                    <TouchableOpacity style={styles.Butao} title="Update" onPress={() => navigation.navigate('Mapa', { userId: userId, user: user, permiSsion:permiSsion, latitude:item.latitude,longitude:item.longitude })}>
-                      <Text style={styles.textoBranco}>Ver localiacao</Text>
+                    <TouchableOpacity style={styles.Butao} title="Voir" onPress={() => navigation.navigate('CartePlan', { userId: userId, user: user, permiSsion:permiSsion, latitude:item.latitude,longitude:item.longitude })}>
+                      <Text style={styles.textoBranco}>Voir localisation</Text>
                     </TouchableOpacity>
 
 
@@ -170,7 +158,7 @@ return (
                         style={styles.Butao5}
                         title="Tirar fotos"
                         onPress={() =>
-                          navigation.navigate('Camera', {
+                          navigation.navigate('Caméra', {
                             userId: userId,
                             user: user,
                             permiSsion: permiSsion,

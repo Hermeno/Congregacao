@@ -32,17 +32,17 @@ useEffect(() => {
 
 const confirmDelete = (id, casadaoracao) => {
   Alert.alert(
-    "Confirmação de Exclusão",
-    "Tem certeza de que deseja deletar " + casadaoracao ,
+    "Confirmation de suppression",
+    "Êtes-vous sûr de vouloir supprimer " + casadaoracao + " ?" ,
     // "Tem certeza de que deseja deletar este registro?",
     [
       {
-        text: "Cancelar",
-        onPress: () => console.log("Exclusão cancelada"),
+        text: "Annuler",
+        onPress: () => console.log("Suppression annulée"),
         style: "cancel"
       },
       {
-        text: "Sim", 
+        text: "Oui", 
         onPress: () => handleDelete(id, casadaoracao)
       }
     ],
@@ -74,12 +74,12 @@ const handleDelete = async (id) => {
 <ScrollView contentContainerStyle={styles.container}>
 <View style={styles.navContainer}>
       <Text style={styles.navItem}>CCM</Text>
-      <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home', { userId: userId, user: user, permiSsion: permiSsion })}>
-        <Text style={styles.buttonText}>voltar</Text>
+      <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Accueil', { userId: userId, user: user, permiSsion: permiSsion })}>
+        <Text style={styles.buttonText}>Retour</Text>
       </TouchableOpacity>
     </View>
 <View style={styles.viewAct}>
-<Text style={styles.textHead}>VISUALIZACAO DE TODOS DADOS</Text>
+<Text style={styles.textHead}>Affichage de toutes les données</Text>
 {casasOracao.length > 0 ? (
   casasOracao.map((item, index) => (
     <React.Fragment key={index}>
@@ -89,20 +89,20 @@ const handleDelete = async (id) => {
           {item.casadaoracao}{item.userId}
         </Text>
         <TouchableOpacity style={styles.Butao}  
-          title="Visualizar"
-          onPress={() => navigation.navigate('Sing', { idPost: item.id, user: user, userId: userId, permiSsion:permiSsion })}
-        ><Text>Visualizar</Text></TouchableOpacity>
+          title="Voir"
+          onPress={() => navigation.navigate('Chanter', { idPost: item.id, user: user, userId: userId, permiSsion:permiSsion })}
+        ><Text>Voir</Text></TouchableOpacity>
 
         <TouchableOpacity style={styles.ButaoDel} 
-          title="Delete"
+          title="Supprimer"
           onPress={() => confirmDelete(item.id, item.casadaoracao)}
-        ><Text>Del</Text></TouchableOpacity>
+        ><Text>Sup</Text></TouchableOpacity>
       </View>
 
     </React.Fragment>
   ))
 ) : (
-  <Text>Nenhum dado encontrado.</Text>
+  <Text>Aucune donnée trouvée.</Text>
 )} 
 </View>
 

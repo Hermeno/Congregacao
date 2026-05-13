@@ -18,23 +18,19 @@ export default function HomeScreen({navigation, route})
 
     return (
       <View style={styles.container}>
-
-
-
-          <Text style={styles.title}>Congregacao Crista em Mocambique</Text>
-          <Text style={styles.userText}>Bem  vindo irmao/a {user}!</Text>
+          <Text style={styles.title}>Congrégation Chrétienne au Mozambique</Text>
+          <Text style={styles.userText}>Bienvenue, frère/sœur {user}!</Text>
           {permiSsion == 1 && (
-            <Pressable style={styles.button2} onPress={() => navigation.navigate('Viw', { userId: userId, user: user, permiSsion:permiSsion })}>
-              <Text style={styles.buttonText}>Visualize todos os dados!</Text>
+            <Pressable style={styles.button2} onPress={() => navigation.navigate('Vue', { userId: userId, user: user, permiSsion:permiSsion })}>
+              <Text style={styles.buttonText}>Voir tous les données!</Text>
             </Pressable>
           )}
-          <Pressable style={styles.button1} onPress={() => navigation.navigate('Form', { userId: userId, user: user, permiSsion: permiSsion })}>
-              <Text style={styles.buttonText} >Formulario de Cadastro  + </Text>
+          <Pressable style={styles.button1} onPress={() => navigation.navigate('Formulaire', { userId: userId, user: user, permiSsion: permiSsion })}>
+              <Text style={styles.buttonText}>Formulaire d'enregistrement +</Text>
           </Pressable>
-          <Pressable style={styles.button} onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.buttonText} >Sair</Text>
+          <Pressable style={styles.button} onPress={() => navigation.navigate('Connexion')}>
+              <Text style={styles.buttonText}>Se déconnecter</Text>
           </Pressable>
-          {/* <Map /> */}
       </View>
   )
   // }

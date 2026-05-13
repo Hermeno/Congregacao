@@ -16,6 +16,9 @@ import SingScreen from "./screens/SingScreen";
 import MapaScreen from "./screens/MapaScreen";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
+import FotosCasaScreen from "./screens/FotosCasaScreen";
+import FotosCroquiScreen from "./screens/FotosCroquiScreen";
+import FotosDocumentoScreen from "./screens/FotosDocumentoScreen";
 //initialize the database
 const initializeDatabase = async(db) => {
     try {
@@ -35,11 +38,12 @@ const initializeDatabase = async(db) => {
 
     await db.execAsync(`       
         CREATE TABLE IF NOT EXISTS fotos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        idPost INTEGER,        -- Relaciona as fotos com o id da postagem foto BLOB,             -- Armazena a foto como BLOB
-        FOREIGN KEY (idPost) REFERENCES posts(id) -- Relaciona com a tabela de posts
-        ); `
-    )
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          idPost INTEGER,
+          foto TEXT,
+          tipo TEXT
+        )`
+    );
 
     await db.execAsync(
         `CREATE TABLE IF NOT EXISTS congregation_data (
@@ -47,31 +51,75 @@ const initializeDatabase = async(db) => {
           userId INTEGER,
           casadaoracao TEXT,
           cooperador_nome TEXT,
+          cooperador_numero TEXT,
           cooperador_jovens_nome TEXT,
+          porteiros_nomes TEXT,
+          auxiliares_admin TEXT,
+          obra_irmas TEXT,
           responsaveis_nomes TEXT,
-          foto_co BLOB,                -- Foto da CO (salva como BLOB)
+          foto_co BLOB,
           material_tipo TEXT,
           qtde_membros INTEGER,
           qtde_batizados INTEGER,
           qtde_santa_ceia_2024 INTEGER,
-          qtde_santa_ceia_2023 INTEGER,
-          qtde_santa_ceia_2022 INTEGER,
+          qtde_santa_ceia_2025 INTEGER,
+          qtde_santa_ceia_2026 INTEGER,
           qtde_criancas INTEGER,
           qtde_musicos INTEGER,
-          documentacao TEXT,           -- Documentação (anexar fotos dos documentos)
-          latitude REAL,               -- Coordenadas de latitude
-          longitude REAL,              -- Coordenadas de longitude
-          croqui BLOB,                 -- Desenho do local (salvo como BLOB)
-          tem_agua_luz BOOLEAN,
+          qtde_musicistas INTEGER,
+          documentacao TEXT,
+          latitude REAL,
+          longitude REAL,
+          croqui BLOB,
+          tem_agua BOOLEAN,
+          tem_luz BOOLEAN,
           material_fabrica TEXT,
+          material_local TEXT,
           posto_administrativo TEXT,
-          endereco TEXT,
+          rua TEXT,
+          bairro TEXT,
+          cidade TEXT,
+          dias_reuniao_jovens TEXT,
           dias_cultos TEXT,
-          horario_cultos TEXT,
-          tem_reuniao_jovens BOOLEAN
+          data_batismo TEXT,
+          denominacao_outra TEXT,
+          observacao TEXT,
+          data_inicio TEXT,
+          qtde_habitantes INTEGER,
+          ccm_terreno TEXT,
+          ccm_imovel TEXT
         )`
     );
-    
+
+    // Adiciona colunas que podem estar faltando
+    try {
+        await db.execAsync(`
+          ALTER TABLE congregation_data ADD COLUMN cooperador_numero TEXT;
+          ALTER TABLE congregation_data ADD COLUMN porteiros_nomes TEXT;
+          ALTER TABLE congregation_data ADD COLUMN auxiliares_admin TEXT;
+          ALTER TABLE congregation_data ADD COLUMN obra_irmas TEXT;
+          ALTER TABLE congregation_data ADD COLUMN qtde_musicistas INTEGER;
+          ALTER TABLE congregation_data ADD COLUMN material_local TEXT;
+          ALTER TABLE congregation_data ADD COLUMN bairro TEXT;
+          ALTER TABLE congregation_data ADD COLUMN dias_reuniao_jovens TEXT;
+          ALTER TABLE congregation_data ADD COLUMN data_batismo TEXT;
+          ALTER TABLE congregation_data ADD COLUMN denominacao_outra TEXT;
+          ALTER TABLE congregation_data ADD COLUMN observacao TEXT;
+          ALTER TABLE congregation_data ADD COLUMN data_inicio TEXT;
+          ALTER TABLE congregation_data ADD COLUMN qtde_habitantes INTEGER;
+          ALTER TABLE congregation_data ADD COLUMN ccm_terreno TEXT;
+          ALTER TABLE congregation_data ADD COLUMN ccm_imovel TEXT;
+          ALTER TABLE congregation_data ADD COLUMN tem_agua BOOLEAN;
+          ALTER TABLE congregation_data ADD COLUMN tem_luz BOOLEAN;
+          ALTER TABLE congregation_data ADD COLUMN rua TEXT;
+          ALTER TABLE congregation_data ADD COLUMN cidade TEXT;
+          ALTER TABLE congregation_data ADD COLUMN qtde_santa_ceia_2025 INTEGER;
+          ALTER TABLE congregation_data ADD COLUMN qtde_santa_ceia_2026 INTEGER;
+        `);
+    } catch (error) {
+        // As colunas já existem, não há problema
+        console.log('Colunas já existem na tabela');
+    }
 };
 
 // Créer un navigateur de pile qui gère la navigation
@@ -88,6 +136,9 @@ export default function App() {
                 <Stack.Screen name='Inscription' component={RegisterScreen}/>
                 <Stack.Screen name='Accueil' component={HomeScreen}/>
                 <Stack.Screen name='Formulaire' component={FormScreen}/>
+                <Stack.Screen name='FotosCasa' component={FotosCasaScreen}/>
+                <Stack.Screen name='FotosCroqui' component={FotosCroquiScreen}/>
+                <Stack.Screen name='FotosDocumento' component={FotosDocumentoScreen}/>
                 <Stack.Screen name='Caméra' component={CameraScreen}/>
                 <Stack.Screen name='Carte' component={MapScreen}/>
                 <Stack.Screen name='Vue' component={ViewScreen}/>

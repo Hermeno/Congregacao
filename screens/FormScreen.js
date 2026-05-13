@@ -1,474 +1,472 @@
-import React, { useState, useEffect } from 'react';
-import { FlatList, Pressable,  ScrollView, Text, StyleSheet, TextInput, Button, Switch, TouchableOpacity, Alert, View, Image } from 'react-native';
-import { casaOracao } from '../database/casaOracao';
-// import { Camera, CameraType } from 'expo-camera';
+import React, { useState } from 'react';
+import { ScrollView, Text, StyleSheet, TextInput, Switch, TouchableOpacity, Alert, View } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
-import * as FileSystem from 'expo-file-system';
 
+const DIAS_SEMANA = [
+  { label: 'Domingo', key: 'domingo', periodos: ['DM', 'DT', 'DN'] },
+  { label: 'Segunda', key: 'segunda', periodos: ['2M', '2T', '2N'] },
+  { label: 'Terça', key: 'terca', periodos: ['3M', '3T', '3N'] },
+  { label: 'Quarta', key: 'quarta', periodos: ['4M', '4T', '4N'] },
+  { label: 'Quinta', key: 'quinta', periodos: ['5M', '5T', '5N'] },
+  { label: 'Sexta', key: 'sexta', periodos: ['6M', '6T', '6N'] },
+  { label: 'Sábado', key: 'sabado', periodos: ['SM', 'ST', 'SN'] },
+];
 
 export default function FormScreen({ navigation, route }) {
   const { user, userId, permiSsion } = route.params;
-  // console.log(userId);
+  const database = useSQLiteContext();
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Estados para armazenar os valores dos campos
-  // const [id, setId] = useState('');
-  const [casaDaOracao, setCasaDaOracao] = useState('');
+  // Estados para todos os campos
+  const [patrimonioNumero, setPatrimonioNumero] = useState('');
   const [cooperadorNome, setCooperadorNome] = useState('');
-  const [cooperadorJovensNome, setCooperadorJovensNome] = useState('');
-  const [responsaveisNomes, setResponsaveisNomes] = useState('');
+  const [cooperadorNumero, setCooperadorNumero] = useState('');
+  const [porteirosNomes, setPorteirosNomes] = useState('');
+  const [auxiliaresAdmin, setAuxiliaresAdmin] = useState('');
+  const [obraIrmas, setObraIrmas] = useState('');
   const [materialTipo, setMaterialTipo] = useState('');
-  const [qtdeMembros, setQtdeMembros] = useState('');
-  const [qtdeBatizados, setQtdeBatizados] = useState('');
-  const [qtdeSantaCeia2024, setQtdeSantaCeia2024] = useState('');
-  const [qtdeSantaCeia2023, setQtdeSantaCeia2023] = useState('');
-  const [qtdeSantaCeia2022, setQtdeSantaCeia2022] = useState('');
-  const [qtdeCriancas, setQtdeCriancas] = useState('');
-  const [qtdeMusicos, setQtdeMusicos] = useState('');
+  const [membrosQuantidade, setMembrosQuantidade] = useState('');
+  const [batizadosQuantidade, setBatizadosQuantidade] = useState('');
+  const [santaCeia2024, setSantaCeia2024] = useState('');
+  const [santaCeia2025, setSantaCeia2025] = useState('');
+  const [santaCeia2026, setSantaCeia2026] = useState('');
+  const [criancasQuantidade, setCriancasQuantidade] = useState('');
+  const [musicosQuantidade, setMusicosQuantidade] = useState('');
+  const [musicistasQuantidade, setMusicistasQuantidade] = useState('');
   const [documentacao, setDocumentacao] = useState('');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
-  const [temAguaLuz, setTemAguaLuz] = useState(false);
-  const [materialFabrica, setMaterialFabrica] = useState('');
+  const [temAgua, setTemAgua] = useState(false);
+  const [temLuz, setTemLuz] = useState(false);
   const [postoAdministrativo, setPostoAdministrativo] = useState('');
-  const [endereco, setEndereco] = useState('');
-  const [diasCultos, setDiasCultos] = useState('');
-  const [horarioCultos, setHorarioCultos] = useState('');
-  const [temReuniaoJovens, setTemReuniaoJovens] = useState(false);
-  const [casasOracao, setCasasOracao] = useState([]);
-  // const [photo, setPhoto] = useState(null); // Armazena a foto tirada
-  // const [photoUri, setPhotoUri] = useState(null); 
-  // const database = useSQLiteContext();
-  const [data, setData] = useState([]);
+  const [rua, setRua] = useState('');
+  const [bairro, setBairro] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [diasReuniaoJovens, setDiasReuniaoJovens] = useState([]);
+  const [dataBatismo, setDataBatismo] = useState('');
+  const [denominacaoOutra, setDenominacaoOutra] = useState('');
+  const [observacao, setObservacao] = useState('');
+  const [dataInicio, setDataInicio] = useState('');
+  const [habitantesQuantidade, setHabitantesQuantidade] = useState('');
+  const [ccmTerreno, setCcmTerreno] = useState('');
+  const [ccmImovel, setCcmImovel] = useState('');
+  const [materialLocal, setMaterialLocal] = useState('');
+  const [cooperadorJovensNome, setCooperadorJovensNome] = useState('');
+  const [diasCultos, setDiasCultos] = useState([]);
 
-
-  const createCasaOracaol = casaOracao();
-
-  const handleSaveCoordinates = (coords) => {
-    setLatitude(coords.latitude);
-    setLongitude(coords.longitude);
+  const toggleDiaReuniao = (periodo) => {
+    setDiasReuniaoJovens((prevDias) =>
+      prevDias.includes(periodo) ? prevDias.filter((d) => d !== periodo) : [...prevDias, periodo]
+    );
   };
 
+  const toggleDiaCulto = (periodo) => {
+    setDiasCultos((prevDias) =>
+      prevDias.includes(periodo) ? prevDias.filter((d) => d !== periodo) : [...prevDias, periodo]
+    );
+  };
 
+  const isSelecionado = (periodo, array) => array.includes(periodo);
 
-
-
-
-
-
-  async function createCasaOracao() {
-
-    if (!casaDaOracao.trim()) {
-      Alert.alert("Preencha todos os campos", "O campo 'Nome da Casa da Oração' é obrigatório.");
-      return; // Interrompe a execução se o campo estiver vazio
-    }
-    
-    if (!cooperadorNome.trim()) {
-      Alert.alert("Preencha todos os campos", "O campo 'Nome do Cooperador' é obrigatório.");
+  const handleSubmit = async () => {
+    if (!patrimonioNumero.trim()) {
+      Alert.alert('Campo obrigatório', 'Digite o número do patrimônio da casa de oração');
       return;
-    }  
-    const response = await createCasaOracaol.createCasaOracao({
-      userId, // Adicionando o ID do usuário
-      casaDaOracao,
-      cooperadorNome,
-      cooperadorJovensNome,
-      responsaveisNomes,
-      materialTipo,
-      qtdeMembros,
-      qtdeBatizados,
-      qtdeSantaCeia2024,
-      qtdeSantaCeia2023,
-      qtdeSantaCeia2022,
-      qtdeCriancas,
-      qtdeMusicos,
-      documentacao,
-      latitude, // Adicionando as coordenadas
-      longitude,
-      temAguaLuz,
-      materialFabrica,
-      postoAdministrativo,
-      endereco,
-      diasCultos,
-      horarioCultos,
-      temReuniaoJovens,
-      // photoUri: photoUri
-    });
-
-    Alert.alert("Agora tira fotos do lugar e adiciona : " + response.insertedRowId);
-     navigation.navigate('Camera', { userId: userId, user: user, permiSsion: permiSsion, idPost: response.insertedRowId });
-
-
-     setCasaDaOracao('');
-     setCooperadorNome('');
-     setCooperadorJovensNome('');
-     setResponsaveisNomes('');
-     setMaterialTipo('');
-     setQtdeMembros('');
-     setQtdeBatizados('');
-     setQtdeSantaCeia2024('');
-     setQtdeSantaCeia2023('');
-     setQtdeSantaCeia2022('');
-     setQtdeCriancas('');
-     setQtdeMusicos('');
-     setDocumentacao('');
-     setLatitude('');
-     setLongitude('');
-     setTemAguaLuz(false);
-     setMaterialFabrica('');
-     setPostoAdministrativo('');
-     setEndereco('');
-     setDiasCultos('');
-     setHorarioCultos('');
-     setTemReuniaoJovens(false);
- 
-     // Atualizar a lista de casas
-     getStudents(userId);
-  }
-
-
-
-  
-  const database = useSQLiteContext();
-  const getStudents = async (userId) => {    
-    try {
-        const allRows = await database.getAllAsync('SELECT * FROM congregation_data WHERE userId = $userId', { $userId: userId } );
-        if (allRows.length > 0) {
-          setCasasOracao(allRows);  // Armazenando os dados no estado
-        } else {
-          console.log('Nenhum dado retornado da consulta');
-        }
-        setCasasOracao(allRows);
-    } catch (error) {
-        console.log('Error while loading students : ', error);
     }
-};
 
-useEffect(() => {
-  getStudents(userId);
-}, [userId]);
+    setIsLoading(true);
+    try {
+      await database.execAsync(
+        `INSERT INTO congregation_data (
+          userId, casadaoracao, cooperador_nome, cooperador_numero, porteiros_nomes, 
+          auxiliares_admin, obra_irmas, material_tipo, qtde_membros, qtde_batizados, 
+          qtde_santa_ceia_2024, qtde_santa_ceia_2025, qtde_santa_ceia_2026, qtde_criancas, 
+          qtde_musicos, qtde_musicistas, documentacao, tem_agua, tem_luz, 
+          material_fabrica, posto_administrativo, rua, bairro, cidade, 
+          dias_reuniao_jovens, data_batismo, denominacao_outra, observacao, data_inicio, 
+          qtde_habitantes, ccm_terreno, ccm_imovel, material_local, 
+          cooperador_jovens_nome, dias_cultos
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          userId, patrimonioNumero, cooperadorNome, cooperadorNumero, porteirosNomes,
+          auxiliaresAdmin, obraIrmas, materialTipo, membrosQuantidade, batizadosQuantidade,
+          santaCeia2024, santaCeia2025, santaCeia2026, criancasQuantidade, musicosQuantidade,
+          musicistasQuantidade, documentacao, temAgua ? 1 : 0, temLuz ? 1 : 0, materialLocal,
+          postoAdministrativo, rua, bairro, cidade, diasReuniaoJovens.join(','),
+          dataBatismo, denominacaoOutra, observacao, dataInicio, habitantesQuantidade,
+          ccmTerreno, ccmImovel, materialLocal, cooperadorJovensNome, diasCultos.join(',')
+        ]
+      );
 
+      const lastId = await database.getFirstAsync(
+        'SELECT MAX(id) as id FROM congregation_data WHERE userId = ?',
+        [userId]
+      );
 
-const handleDelete = async (id) => {
-  try {
-      await database.runAsync('DELETE FROM congregation_data WHERE id = ?', [id]);
-      await getStudents();
-  } catch (error) {
-      console.log('Error while deleting the student : ', error);
-  }
-}
+      const registroId = lastId.id;
 
+      navigation.navigate('FotosCasa', {
+        registroId,
+        userId,
+        user,
+        permiSsion,
+        patrimonioNumero,
+        cooperadorNome
+      });
+    } catch (error) {
+      console.error('Erro:', error);
+      Alert.alert('Erro', 'Erro ao enviar o formulário');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
- return (
- 
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.navContainer}>
+        <Text style={styles.navItem}>CCM</Text>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => navigation.navigate('Accueil', { userId, user, permiSsion })}
+        >
+          <Text style={styles.buttonText}>← Retour</Text>
+        </TouchableOpacity>
+      </View>
 
-    <ScrollView contentContainerStyle={styles.container}>  
-    <View style={styles.navContainer}>
-      <Text style={styles.navItem}>CCM</Text>
-      <TouchableOpacity
-        style={styles.navButton}
-        onPress={() =>
-          navigation.navigate('Home', { userId: userId, user: user, permiSsion: permiSsion })
-        }
-      >
-        <Text style={styles.buttonText}>voltar</Text>
-      </TouchableOpacity>
-    </View>
+      <View style={styles.viewForm}>
+        <Text style={styles.title}>Formulário de Cadastro</Text>
 
+        {/* Seção 1: Informações Básicas */}
+        <Text style={styles.sectionTitle}>Informações Básicas</Text>
 
-<View style={styles.viewForm}>
-  <Text style={styles.textHead}>Formulario de Cadastro. Irmão/a {user}  - {userId} </Text>
-      <Text style={styles.text}>Nome da Casa da Oracao:</Text>
-      <TextInput
-        placeholder="Digite o nome do cooperador"
-        style={styles.input}
-        value={casaDaOracao}
-        onChangeText={setCasaDaOracao}
-      />
-      <Text style={styles.text}>Nome do Cooperador:</Text>
-      <TextInput
-        placeholder="Digite o nome do cooperador"
-        style={styles.input}
-        value={cooperadorNome}
-        onChangeText={setCooperadorNome}
-      />
+        <Text style={styles.label}>Número do patrimônio da casa de Oração *</Text>
+        <TextInput style={styles.input} placeholder="Digite o número" value={patrimonioNumero} onChangeText={setPatrimonioNumero} />
 
-      <Text style={styles.text}>Nome do Cooperador de Jovens:</Text>
-      <TextInput
-        placeholder="Digite o nome do cooperador de jovens"
-        style={styles.input}
-        value={cooperadorJovensNome}
-        onChangeText={setCooperadorJovensNome}
-      />
+        <Text style={styles.label}>Nome do Cooperador (opcional)</Text>
+        <TextInput style={styles.input} placeholder="Digite o nome" value={cooperadorNome} onChangeText={setCooperadorNome} />
 
-      <Text style={styles.text}>Nome dos Irmãos Responsáveis:</Text>
-      <TextInput
-        placeholder="Escreva os nomes dos responsáveis"
-        style={styles.input}
-        value={responsaveisNomes}
-        onChangeText={setResponsaveisNomes}
-      />
+        <Text style={styles.label}>Número do Cooperador</Text>
+        <TextInput style={styles.input} placeholder="Digite o número" value={cooperadorNumero} onChangeText={setCooperadorNumero} keyboardType="numeric" />
 
-      <Text style={styles.text}>Tipo de Material:</Text>
-      <TextInput
-        placeholder="Digite o tipo de material"
-        style={styles.input}
-        value={materialTipo}
-        onChangeText={setMaterialTipo}
-      />
+        <Text style={styles.label}>Nome do Cooperador de Jovens</Text>
+        <TextInput style={styles.input} placeholder="Digite o nome" value={cooperadorJovensNome} onChangeText={setCooperadorJovensNome} />
 
-      <Text style={styles.text}>Quantidade de Membros:</Text>
-      <TextInput
-        placeholder="Digite a quantidade"
-        keyboardType="numeric"
-        style={styles.input}
-        value={qtdeMembros}
-        onChangeText={setQtdeMembros}
-      />
+        <Text style={styles.label}>Nome dos porteiros</Text>
+        <TextInput style={styles.input} placeholder="Digite os nomes" value={porteirosNomes} onChangeText={setPorteirosNomes} />
 
-      <Text style={styles.text}>Quantidade de Batizados:</Text>
-      <TextInput
-        placeholder="Digite a quantidade de batizados"
-        keyboardType="numeric"
-        style={styles.input}
-        value={qtdeBatizados}
-        onChangeText={setQtdeBatizados}
-      />
+        <Text style={styles.label}>Nome dos auxiliares da Administração</Text>
+        <TextInput style={styles.input} placeholder="Digite os nomes" value={auxiliaresAdmin} onChangeText={setAuxiliaresAdmin} />
 
-      <Text style={styles.text}>Santa Ceia 2024:</Text>
-      <TextInput
-        placeholder="Quantidade de participantes"
-        keyboardType="numeric"
-        style={styles.input}
-        value={qtdeSantaCeia2024}
-        onChangeText={setQtdeSantaCeia2024}
-      />
+        <Text style={styles.label}>Nome das irmãs da obra da piedade</Text>
+        <TextInput style={styles.input} placeholder="Digite os nomes" value={obraIrmas} onChangeText={setObraIrmas} />
 
-      <Text style={styles.text}>Santa Ceia 2023:</Text>
-      <TextInput
-        placeholder="Quantidade de participantes"
-        keyboardType="numeric"
-        style={styles.input}
-        value={qtdeSantaCeia2023}
-        onChangeText={setQtdeSantaCeia2023}
-      />
+        {/* Seção 2: Dados da Congregação */}
+        <Text style={styles.sectionTitle}>Dados da Congregação</Text>
 
-      <Text style={styles.text}>Santa Ceia 2022:</Text>
-      <TextInput
-        placeholder="Quantidade de participantes"
-        keyboardType="numeric"
-        style={styles.input}
-        value={qtdeSantaCeia2022}
-        onChangeText={setQtdeSantaCeia2022}
-      />
+        <Text style={styles.label}>Quantidade de Membros que Congregam</Text>
+        <TextInput style={styles.input} placeholder="Digite a quantidade" keyboardType="numeric" value={membrosQuantidade} onChangeText={setMembrosQuantidade} />
 
-      <Text style={styles.text}>Quantidade de Crianças:</Text>
-      <TextInput
-        placeholder="Digite a quantidade de crianças"
-        keyboardType="numeric"
-        style={styles.input}
-        value={qtdeCriancas}
-        onChangeText={setQtdeCriancas}
-      />
+        <Text style={styles.label}>Quantidade de irmãos Batizados</Text>
+        <TextInput style={styles.input} placeholder="Digite a quantidade" keyboardType="numeric" value={batizadosQuantidade} onChangeText={setBatizadosQuantidade} />
 
-      <Text style={styles.text}>Quantidade de Músicos:</Text>
-      <TextInput
-        placeholder="Digite a quantidade de músicos"
-        keyboardType="numeric"
-        style={styles.input}
-        value={qtdeMusicos}
-        onChangeText={setQtdeMusicos}
-      />
+        <Text style={styles.label}>Quantidade de Crianças</Text>
+        <TextInput style={styles.input} placeholder="Digite a quantidade" keyboardType="numeric" value={criancasQuantidade} onChangeText={setCriancasQuantidade} />
 
-      <Text style={styles.text}>Documentação:</Text>
-      <TextInput
-        placeholder="Descrição da documentação"
-        style={styles.input}
-        value={documentacao}
-        onChangeText={setDocumentacao}
-      />
+        <Text style={styles.label}>Quantidade de irmãos Músicos</Text>
+        <TextInput style={styles.input} placeholder="Digite a quantidade" keyboardType="numeric" value={musicosQuantidade} onChangeText={setMusicosQuantidade} />
 
-      <Text style={styles.text}>Tem Água e Luz:</Text>
-      <Switch value={temAguaLuz} onValueChange={setTemAguaLuz} />
+        <Text style={styles.label}>Quantidade de irmãs Musicistas</Text>
+        <TextInput style={styles.input} placeholder="Digite a quantidade" keyboardType="numeric" value={musicistasQuantidade} onChangeText={setMusicistasQuantidade} />
 
-      <Text style={styles.text}>Material da Fábrica:</Text>
-      <TextInput
-        placeholder="Digite o material fabricado"
-        style={styles.input}
-        value={materialFabrica}
-        onChangeText={setMaterialFabrica}
-      />
+        {/* Seção 3: Santa Ceia */}
+        <Text style={styles.sectionTitle}>Santa Ceia</Text>
 
-      <Text style={styles.text}>Posto Administrativo:</Text>
-      <TextInput
-        placeholder="Digite o nome do posto"
-        style={styles.input}
-        value={postoAdministrativo}
-        onChangeText={setPostoAdministrativo}
-      />
+        <Text style={styles.label}>Santa Ceia 2024</Text>
+        <TextInput style={styles.input} placeholder="Quantidade de participantes" keyboardType="numeric" value={santaCeia2024} onChangeText={setSantaCeia2024} />
 
-      <Text style={styles.text}>Endereço:</Text>
-      <TextInput
-        placeholder="Digite o endereço"
-        style={styles.input}
-        value={endereco}
-        onChangeText={setEndereco}
-      />
+        <Text style={styles.label}>Santa Ceia 2025</Text>
+        <TextInput style={styles.input} placeholder="Quantidade de participantes" keyboardType="numeric" value={santaCeia2025} onChangeText={setSantaCeia2025} />
 
-      <Text style={styles.text}>Dias de Cultos:</Text>
-      <TextInput
-        placeholder="Digite os dias de culto"
-        style={styles.input}
-        value={diasCultos}
-        onChangeText={setDiasCultos}
-      />
+        <Text style={styles.label}>Santa Ceia 2026</Text>
+        <TextInput style={styles.input} placeholder="Quantidade de participantes" keyboardType="numeric" value={santaCeia2026} onChangeText={setSantaCeia2026} />
 
-      <Text style={styles.text}>Horário dos Cultos:</Text>
-      <TextInput
-        placeholder="Digite os horários dos cultos"
-        style={styles.input}
-        value={horarioCultos}
-        onChangeText={setHorarioCultos}
-      />
+        {/* Seção 4: Informações Estruturais */}
+        <Text style={styles.sectionTitle}>Informações Estruturais</Text>
 
-      <Text style={styles.text}>Tem Reunião de Jovens:</Text>
-      <Switch value={temReuniaoJovens} onValueChange={setTemReuniaoJovens} />
+        <Text style={styles.label}>Tipo de Material utilizado</Text>
+        <TextInput style={styles.input} placeholder="Digite o tipo de material" value={materialTipo} onChangeText={setMaterialTipo} />
 
-      <Button
-        title="Selecionar Localização"
-        onPress={() => navigation.navigate('Map', { saveCoordinates: handleSaveCoordinates })}
-      />
-      {latitude && longitude && (
-        <Text style={styles.textoCordennadas}>
-          Coordenadas Selecionadas! Lat: {latitude}, Long: {longitude}
-        </Text>
-      )}
+        <Text style={styles.label}>Tipo de material que existe no local</Text>
+        <TextInput style={styles.input} placeholder="Digite o tipo de material" value={materialLocal} onChangeText={setMaterialLocal} />
 
-      <TouchableOpacity style={styles.Butao} onPress={createCasaOracao}>
-        <Text>Enviar</Text>
-      </TouchableOpacity>
+        <Text style={styles.label}>Documentação</Text>
+        <TextInput style={styles.input} placeholder="Descrição da documentação" value={documentacao} onChangeText={setDocumentacao} />
+
+        <View style={styles.switchContainer}>
+          <View style={styles.switchRow}>
+            <Text style={styles.label}>Tem Água</Text>
+            <Switch value={temAgua} onValueChange={setTemAgua} />
+          </View>
+          <View style={styles.switchRow}>
+            <Text style={styles.label}>Tem Luz</Text>
+            <Switch value={temLuz} onValueChange={setTemLuz} />
+          </View>
+        </View>
+
+        <Text style={styles.label}>A CCM já possui Terreno</Text>
+        <TextInput style={styles.input} placeholder="Sim / Não" value={ccmTerreno} onChangeText={setCcmTerreno} />
+
+        <Text style={styles.label}>A CCM possui imóvel próprio</Text>
+        <TextInput style={styles.input} placeholder="Sim / Não" value={ccmImovel} onChangeText={setCcmImovel} />
+
+        {/* Seção 5: Localização */}
+        <Text style={styles.sectionTitle}>Localização</Text>
+
+        <Text style={styles.label}>Posto Administrativo</Text>
+        <TextInput style={styles.input} placeholder="Digite o nome do posto" value={postoAdministrativo} onChangeText={setPostoAdministrativo} />
+
+        <Text style={styles.label}>Nome da Rua e Número</Text>
+        <TextInput style={styles.input} placeholder="Digite a rua e número" value={rua} onChangeText={setRua} />
+
+        <Text style={styles.label}>Nome do Bairro</Text>
+        <TextInput style={styles.input} placeholder="Digite o bairro" value={bairro} onChangeText={setBairro} />
+
+        <Text style={styles.label}>Nome da Cidade</Text>
+        <TextInput style={styles.input} placeholder="Digite a cidade" value={cidade} onChangeText={setCidade} />
+
+        <Text style={styles.label}>Quantidade de habitantes na cidade</Text>
+        <TextInput style={styles.input} placeholder="Digite a quantidade" keyboardType="numeric" value={habitantesQuantidade} onChangeText={setHabitantesQuantidade} />
+
+        {/* Seção 6: Dias de Reunião de Jovens */}
+        <Text style={styles.sectionTitle}>Selecione os dias de Reunião de Jovens</Text>
+        {DIAS_SEMANA.map((dia) => (
+          <View key={dia.key} style={styles.diaContainer}>
+            <Text style={styles.diaLabel}>{dia.label}:</Text>
+            <View style={styles.periodosContainer}>
+              {dia.periodos.map((periodo) => (
+                <TouchableOpacity
+                  key={periodo}
+                  style={[
+                    styles.periodoButton,
+                    isSelecionado(periodo, diasReuniaoJovens) && styles.periodoButtonSelected,
+                  ]}
+                  onPress={() => toggleDiaReuniao(periodo)}
+                >
+                  <Text
+                    style={[
+                      styles.periodoText,
+                      isSelecionado(periodo, diasReuniaoJovens) && styles.periodoTextSelected,
+                    ]}
+                  >
+                    {periodo}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ))}
+
+        {/* Seção 7: Dias e Horários de Cultos */}
+        <Text style={styles.sectionTitle}>Selecione os dias e horários dos cultos</Text>
+        {DIAS_SEMANA.map((dia) => (
+          <View key={dia.key + '_cultos'} style={styles.diaContainer}>
+            <Text style={styles.diaLabel}>{dia.label}:</Text>
+            <View style={styles.periodosContainer}>
+              {dia.periodos.map((periodo) => (
+                <TouchableOpacity
+                  key={periodo}
+                  style={[
+                    styles.periodoButton,
+                    isSelecionado(periodo, diasCultos) && styles.periodoButtonSelected,
+                  ]}
+                  onPress={() => toggleDiaCulto(periodo)}
+                >
+                  <Text
+                    style={[
+                      styles.periodoText,
+                      isSelecionado(periodo, diasCultos) && styles.periodoTextSelected,
+                    ]}
+                  >
+                    {periodo}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ))}
+
+        {/* Seção 8: Informações Adicionais */}
+        <Text style={styles.sectionTitle}>Informações Adicionais</Text>
+
+        <Text style={styles.label}>Data do batismo do cooperador</Text>
+        <TextInput style={styles.input} placeholder="Digite a data do batismo" value={dataBatismo} onChangeText={setDataBatismo} />
+
+        <Text style={styles.label}>O cooperador veio de outra denominação</Text>
+        <TextInput style={styles.input} placeholder="Sim / Não" value={denominacaoOutra} onChangeText={setDenominacaoOutra} />
+
+        <Text style={styles.label}>Quando iniciou a obra no local</Text>
+        <TextInput style={styles.input} placeholder="Digite a data do início" value={dataInicio} onChangeText={setDataInicio} />
+
+        <Text style={styles.label}>Campo de observação (sugestão/reclamação)</Text>
+        <TextInput 
+          style={[styles.input, styles.textAreaInput]} 
+          placeholder="Escreva alguma sugestão ou reclamação" 
+          value={observacao} 
+          onChangeText={setObservacao}
+          multiline
+          numberOfLines={4}
+        />
+
+        {/* Botão Enviar */}
+        <TouchableOpacity
+          style={[styles.submitButton, isLoading && styles.submitButtonDisabled]}
+          onPress={handleSubmit}
+          disabled={isLoading}
+        >
+          <Text style={styles.submitButtonText}>{isLoading ? 'Enviando...' : 'Enviar'}</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
-
-
 }
-  // export default CasaOracaoScreen;
-  
-
 
 const styles = StyleSheet.create({
   container: {
-    // padding: 20,
+    paddingBottom: 50,
+    backgroundColor: '#f5f5f5',
   },
-  input: {
-    borderColor: '#000',
-    borderWidth: 1,
-    padding: 8,
-    marginVertical: 5,
-    borderRadius: 5,
-  },
-  text: {
-    fontSize: 16,
-    marginVertical: 5,
-  },
-  textHead: {
-    fontSize: 16,
-    marginVertical: 5,
-    fontWeight: 'bold',
-    color: 'green',
-    marginBottom: 10,
-  },
-  textoCordennadas: {
-    color: 'green',
-    fontSize: 18,
-    marginVertical: 5,
-  },
-  Butao: {
-    backgroundColor: '#4CAF50',
-    padding: 10,
-    alignItems: 'center',
-    borderRadius: 5,
-    marginVertical: 10,
-  },
-  image: {
-    width: 100,
-    height: 100,
-    marginVertical: 10,
-    borderRadius: 10,
-  },
-  textoRender:
-  {
-    fontSize: 18,
-    marginVertical: 5,
-    marginBottom: 10,
-    fontWeight: 'bold',
-    color: 'green',
-    borderBottomWidth: 1,
-   },
-   button: {
-    width: '40%',  // Define a largura do botão (ajuste conforme necessário)
-    alignSelf: 'center',  // Centraliza o botão
-    marginVertical: 10,  // Espaçamento vertical
-  },
-  textoRender: {
-    fontSize: 16,
-    padding: 10,
-  },
-  viewForm: {
-    backgroundColor: '#f2f2f2',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginTop: 30,
-  },
-  viewAct: {
-    backgroundColor: '#ECE3E3FF',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 0,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginTop: 10,
-  },
-  butaofoto:{
-    marginBottom: 10,
-    padding: 10,
-  },
-
-
   navContainer: {
-    width: '100%',
-    flexDirection: 'row',  // Coloca os itens lado a lado
-    justifyContent: 'space-between',  // Distribui espaço entre os itens
-    alignItems: 'center',  // Alinha verticalmente ao centro
-    padding: 15,
-    backgroundColor: '#fff',
-    // borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    // marginTop: -20
-    position: 'absolute', // Fixa a nav na parte superior
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    backgroundColor: 'white',
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 1000, 
+    zIndex: 1000,
   },
   navItem: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#333',
   },
   navButton: {
-    backgroundColor: '#007bff',
-    // paddingVertical: 10,
-    // paddingHorizontal: 20,
-    padding:10,
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
     borderRadius: 20,
   },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 14,
+  },
+  viewForm: {
+    marginTop: 70,
+    paddingHorizontal: 15,
+    paddingVertical: 20,
+    backgroundColor: '#ECE3E3',
+    borderRadius: 10,
+    marginHorizontal: 10,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#2d5016',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#007AFF',
+    marginTop: 20,
+    marginBottom: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: '#007AFF',
+    paddingBottom: 8,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#333',
+    marginTop: 12,
+    marginBottom: 6,
+  },
+  input: {
+    borderColor: '#007AFF',
+    borderWidth: 2,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    backgroundColor: 'white',
+    marginBottom: 8,
+  },
+  textAreaInput: {
+    paddingVertical: 12,
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  switchContainer: {
+    marginVertical: 10,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  diaContainer: {
+    marginVertical: 12,
+  },
+  diaLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  periodosContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 12,
+  },
+  periodoButton: {
+    borderWidth: 2,
+    borderColor: '#007AFF',
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: 'white',
+    minWidth: 50,
+    alignItems: 'center',
+  },
+  periodoButtonSelected: {
+    backgroundColor: '#007AFF',
+  },
+  periodoText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#007AFF',
+  },
+  periodoTextSelected: {
+    color: 'white',
+  },
+  submitButton: {
+    backgroundColor: '#0047AB',
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 30,
+  },
+  submitButtonDisabled: {
+    opacity: 0.6,
+  },
+  submitButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
-
-

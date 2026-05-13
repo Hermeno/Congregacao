@@ -14,12 +14,11 @@ import { FontAwesome } from '@expo/vector-icons';
 export default function RegisterScreen({ navigation }) {
   const db = useSQLiteContext();
   const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleRegister = async () => {
-    if (userName.length === 0 || password.length === 0 || email.length === 0) {
+    if (userName.length === 0 || password.length === 0) {
       Alert.alert('Avertissement', 'Veuillez remplir tous les champs');
       return;
     }
@@ -41,13 +40,12 @@ export default function RegisterScreen({ navigation }) {
       }
 
       await db.runAsync(
-        'INSERT INTO users (username, email, password, permission) VALUES (?, ?, ?, ?)',
-        [userName, email, password, 1]
+        'INSERT INTO users (username, password, permission) VALUES (?, ?, ?)',
+        [userName, password, 1]
       );
 
-      Alert.alert('Succès', 'Utilisateur enregistré avec succès!');
+      Alert.alert('Succès', 'Utilisateur enregistré com sucesso!');
       setUserName('');
-      setEmail('');
       setPassword('');
       setConfirmPassword('');
       navigation.navigate('Connexion');
@@ -72,15 +70,6 @@ export default function RegisterScreen({ navigation }) {
         placeholder="Nom d'utilisateur"
         value={userName}
         onChangeText={setUserName}
-        placeholderTextColor="#999"
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
         placeholderTextColor="#999"
       />
 
